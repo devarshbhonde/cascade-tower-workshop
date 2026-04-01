@@ -191,6 +191,17 @@ body.student-mode{background:var(--ubc-white);}
 .sv-tip h4{font-size:13px;color:var(--ubc-blue);margin-bottom:3px;}
 .sv-tip p{font-size:12px;color:var(--text2);margin:0;}
 
+/* ═══ CLICKABLE TOOL TAGS WITH HOVER TOOLTIPS ═══ */
+a.tool-link{display:inline-block;padding:3px 10px;border-radius:5px;font-size:9px;font-weight:700;background:rgba(0,85,183,.08);color:var(--ubc-blue2);text-decoration:none;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+a.tool-link:hover{background:rgba(0,85,183,.18);border-color:rgba(0,85,183,.25);transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,85,183,.12);}
+a.tool-link .tip-bubble{display:none;}
+.global-tip{position:fixed;background:var(--ubc-blue);color:#fff;padding:14px 18px;border-radius:10px;font-size:11px;font-weight:400;line-height:1.55;width:260px;text-align:left;box-shadow:0 12px 32px rgba(0,0,0,.35);z-index:9999;pointer-events:none;opacity:0;transition:opacity .15s ease;}
+.global-tip.visible{opacity:1;}
+.global-tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:var(--ubc-blue);}
+.global-tip .tip-name{font-weight:700;font-size:13px;color:var(--ubc-gold);margin-bottom:5px;display:block;}
+.global-tip .tip-url{font-size:9px;color:rgba(255,255,255,.4);margin-top:7px;display:block;}
+.global-tip.tip-below::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--ubc-blue);}
+
 /* ═══ ANIMATIONS ═══ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 .slide.active .slide-inner>*{animation:fadeUp .5s ease both;}
@@ -201,6 +212,7 @@ body.student-mode{background:var(--ubc-white);}
   .s-split .slide-inner{flex-direction:column;}
   .s-split .img-half{flex:0 0 35%;}
   .cards-2,.cards-3,.assign-grid,.tip-grid,.take-grid{grid-template-columns:1fr;}
+  a.tool-link .tip-bubble{width:180px;font-size:10px;padding:8px 12px;}
   .stats{flex-wrap:wrap;}
   .slide-inner{padding:32px 28px!important;}
 }
@@ -231,7 +243,6 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-title active" data-notes="Welcome everyone. Today we'll explore how AI is transforming construction — not in theory, but hands-on. By the end of this hour, each of you will have built an interactive analytics dashboard using AI. Let's dive in.">
   <div class="slide-bg" style="background-image:url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=80')"></div>
   <div class="slide-inner">
-    <div class="ubc-crest">U</div>
     <h1>AI in <span class="gold">Construction</span></h1>
     <div class="subtitle">From Industry Landscape to Building Something Real</div>
     <div class="meta">MEng Project & Construction Management &nbsp;·&nbsp; UBC Vancouver &nbsp;·&nbsp; April 2026</div>
@@ -295,9 +306,9 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="These numbers set the context. This is not niche experimentation — it's a rapidly growing market driven by real productivity gains. The fundamental shift is from reactive to predictive project management. Everything we discuss today connects back to that theme.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1449034446853-66c86144b0ad?w=1200&q=80" alt="City skyline construction">
+      <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80" alt="Modern construction skyline">
       <div class="img-overlay"></div>
-      <div class="img-credit">Photo: Pedro Lastra / Unsplash</div>
+      <div class="img-credit">Photo: Aditya Chinchure / Unsplash</div>
     </div>
     <div class="content-half">
       <div class="tag tag-gold">THE BIG PICTURE</div>
@@ -334,25 +345,25 @@ body.student-mode{background:var(--ubc-white);}
           <div class="crd-icon crd-icon-blue">&#128197;</div>
           <h3>AI Generative Scheduling</h3>
           <p>Engines generate thousands of feasible plans optimized for time, cost, or resource use — far beyond manual planning</p>
-          <div class="tools"><span class="tool-t">ALICE Technologies</span></div>
+          <div class="tools"><a href="https://www.alicetechnologies.com/" target="_blank" class="tool-link">ALICE Technologies<span class="tip-bubble"><span class="tip-name">ALICE Technologies</span>Generative construction scheduling engine. Creates thousands of optimized plans from project constraints for time, cost, or resource goals.<span class="tip-url">alicetechnologies.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-gold">&#128200;</div>
           <h3>Predictive Delay Analysis</h3>
           <p>ML models trained on 800,000+ real projects predict activity-level delay probability before delays happen</p>
-          <div class="tools"><span class="tool-t">nPlan</span></div>
+          <div class="tools"><a href="https://www.nplan.io/" target="_blank" class="tool-link">nPlan<span class="tip-bubble"><span class="tip-name">nPlan</span>ML-based delay prediction trained on 800,000+ real construction project schedules. Forecasts risk at the activity level.<span class="tip-url">nplan.io</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-green">&#128301;</div>
           <h3>What-If Modelling</h3>
           <p>Dynamic simulation of disruptions, resource reallocation, and sequencing changes in real time</p>
-          <div class="tools"><span class="tool-t">Procore Copilot</span></div>
+          <div class="tools"><a href="https://www.procore.com/" target="_blank" class="tool-link">Procore Copilot<span class="tip-bubble"><span class="tip-name">Procore Copilot</span>AI assistant inside Procore's construction management platform. Provides what-if schedule modelling and risk analysis.<span class="tip-url">procore.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-red">&#128220;</div>
           <h3>NLP for Schedule Risk</h3>
           <p>LLMs read meeting minutes and daily logs to flag schedule risks buried in unstructured text</p>
-          <div class="tools"><span class="tool-t">Claude</span><span class="tool-t">GPT</span></div>
+          <div class="tools"><a href="https://claude.ai/" target="_blank" class="tool-link">Claude<span class="tip-bubble"><span class="tip-name">Claude (Anthropic)</span>Advanced LLM for analysing meeting minutes, daily logs, and unstructured text to surface schedule risks.<span class="tip-url">claude.ai</span></span></a><a href="https://openai.com/chatgpt" target="_blank" class="tool-link">GPT<span class="tip-bubble"><span class="tip-name">ChatGPT (OpenAI)</span>General-purpose LLM used for document analysis, report generation, and NLP tasks in construction workflows.<span class="tip-url">openai.com/chatgpt</span></span></a></div>
         </div>
       </div>
     </div>
@@ -364,7 +375,7 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="Construction productivity and safety — CIVL 521. Computer vision from cameras and drones detects PPE violations, fall hazards, and equipment proximity in real time. OpenSpace auto-maps 360-degree photos to floor plans. AI-based predictive safety models analyze weather, schedule pressure, and fatigue to forecast where incidents are most likely.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1200&q=80" alt="Construction workers with helmets">
+      <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1200&q=80" alt="Construction workers with safety gear">
       <div class="img-overlay"></div>
       <div class="img-credit">Photo: Jeriden Villegas / Unsplash</div>
     </div>
@@ -376,25 +387,25 @@ body.student-mode{background:var(--ubc-white);}
           <div class="crd-icon crd-icon-red">&#128247;</div>
           <h3>Computer Vision for Safety</h3>
           <p>Real-time analysis of CCTV, drone, and wearable feeds detects PPE violations, fall hazards, and unauthorized zone access</p>
-          <div class="tools"><span class="tool-t">Versatile</span><span class="tool-t">Intsite</span></div>
+          <div class="tools"><a href="https://www.versatile.ai/" target="_blank" class="tool-link">Versatile<span class="tip-bubble"><span class="tip-name">Versatile (CraneView)</span>AI-powered crane analytics using IoT sensors to track lifts, idle time, and equipment utilization in real time.<span class="tip-url">versatile.ai</span></span></a><a href="https://www.intsite.co/" target="_blank" class="tool-link">Intsite<span class="tip-bubble"><span class="tip-name">Intsite</span>Computer vision for construction safety — detects PPE violations, fall hazards, and unauthorized zone access from site cameras.<span class="tip-url">intsite.co</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-blue">&#128225;</div>
           <h3>360° Progress Monitoring</h3>
           <p>Cameras auto-map imagery to floor plans and compare against BIM to quantify percent complete per area</p>
-          <div class="tools"><span class="tool-t">OpenSpace</span><span class="tool-t">Buildots</span></div>
+          <div class="tools"><a href="https://www.openspace.ai/" target="_blank" class="tool-link">OpenSpace<span class="tip-bubble"><span class="tip-name">OpenSpace</span>360° reality capture platform. Auto-maps photos to floor plans and compares against BIM for progress tracking.<span class="tip-url">openspace.ai</span></span></a><a href="https://www.buildots.com/" target="_blank" class="tool-link">Buildots<span class="tip-bubble"><span class="tip-name">Buildots</span>Hardhat-mounted cameras + AI for automated construction progress monitoring vs planned schedule.<span class="tip-url">buildots.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-green">&#128202;</div>
           <h3>Productivity Analytics</h3>
           <p>Track crew movements, equipment utilization, and material flow to identify bottlenecks</p>
-          <div class="tools"><span class="tool-t">Voyage Control</span></div>
+          <div class="tools"><a href="https://www.voyagecontrol.com/" target="_blank" class="tool-link">Voyage Control<span class="tip-bubble"><span class="tip-name">Voyage Control</span>Logistics platform for construction sites. AI tracks deliveries, equipment, and material flow to reduce idle time.<span class="tip-url">voyagecontrol.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-gold">&#128678;</div>
           <h3>Predictive Safety</h3>
           <p>ML models analyze incident history, weather, schedule pressure, and crew fatigue to forecast risk</p>
-          <div class="tools"><span class="tool-t">Newmetrix</span></div>
+          <div class="tools"><a href="https://www.newmetrix.com/" target="_blank" class="tool-link">Newmetrix<span class="tip-bubble"><span class="tip-name">Newmetrix (Oracle)</span>Predictive safety analytics — ML models forecast incident risk from historical data, weather, and site conditions.<span class="tip-url">newmetrix.com</span></span></a></div>
         </div>
       </div>
     </div>
@@ -406,7 +417,7 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="Project economics — CIVL 522. Togal.AI does automated quantity takeoff from drawings 5 times faster. ML models predict budget overruns by learning from thousands of completed projects. And AI-powered earned value forecasting doesn't just calculate SPI/CPI — it predicts where they'll be in 3 months based on project-specific patterns.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Data dashboard analytics">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Data analytics dashboard">
       <div class="img-overlay"></div>
       <div class="img-credit">Photo: Luke Chesser / Unsplash</div>
     </div>
@@ -418,25 +429,25 @@ body.student-mode{background:var(--ubc-white);}
           <div class="crd-icon crd-icon-gold">&#128208;</div>
           <h3>Automated Quantity Takeoff</h3>
           <p>AI reads drawings and auto-measures areas, counts, and material quantities — 5× faster than manual with comparable accuracy</p>
-          <div class="tools"><span class="tool-t">Togal.AI</span><span class="tool-t">Buildxact</span></div>
+          <div class="tools"><a href="https://togal.ai/" target="_blank" class="tool-link">Togal.AI<span class="tip-bubble"><span class="tip-name">Togal.AI</span>AI-powered quantity takeoff. Reads architectural drawings and auto-measures areas, counts, and material quantities — 5× faster than manual.<span class="tip-url">togal.ai</span></span></a><a href="https://www.buildxact.com/" target="_blank" class="tool-link">Buildxact<span class="tip-bubble"><span class="tip-name">Buildxact</span>Cloud estimating and job management for residential builders. AI assists with takeoff and cost estimation.<span class="tip-url">buildxact.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-blue">&#128176;</div>
           <h3>Conceptual Estimating</h3>
           <p>Early-stage cost predictions from minimal inputs by training on historical cost databases</p>
-          <div class="tools"><span class="tool-t">ProEst</span></div>
+          <div class="tools"><a href="https://www.proest.com/" target="_blank" class="tool-link">ProEst<span class="tip-bubble"><span class="tip-name">ProEst</span>Cloud-based construction estimating platform. Uses historical cost data and AI for early-stage conceptual estimates.<span class="tip-url">proest.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-red">&#127922;</div>
           <h3>Predictive Risk Modelling</h3>
           <p>ML forecasts budget overruns and delays from patterns in historical data — beyond assumed distributions</p>
-          <div class="tools"><span class="tool-t">Forecast (AI)</span></div>
+          <div class="tools"><a href="https://www.forecast.app/" target="_blank" class="tool-link">Forecast (AI)<span class="tip-bubble"><span class="tip-name">Forecast</span>AI-native project management platform. ML models predict budget overruns and timeline risks from historical project patterns.<span class="tip-url">forecast.app</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-green">&#128200;</div>
           <h3>EV Forecasting</h3>
           <p>AI predicts future SPI/CPI and EAC based on project trajectory and learned patterns</p>
-          <div class="tools"><span class="tool-t">SmartPM</span></div>
+          <div class="tools"><a href="https://smartpm.com/" target="_blank" class="tool-link">SmartPM<span class="tip-bubble"><span class="tip-name">SmartPM</span>AI-powered schedule and cost analytics for construction. Predicts EAC, SPI/CPI trends, and flags at-risk activities automatically.<span class="tip-url">smartpm.com</span></span></a></div>
         </div>
       </div>
     </div>
@@ -448,9 +459,9 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="Virtual Design and Construction — CIVL 526. AI is transforming BIM in four key areas. Automated clash prioritization surfaces the critical 2% from 10,000 clashes. Generative design explores thousands of feasible layouts. Automated code checking validates models against regulations. And digital twins ingest live sensor data to predict maintenance needs.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1200&q=80" alt="3D architectural visualization">
+      <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80" alt="Modern architectural building design">
       <div class="img-overlay"></div>
-      <div class="img-credit">Photo: ThisisEngineering / Unsplash</div>
+      <div class="img-credit">Photo: Alex Kotliarskyi / Unsplash</div>
     </div>
     <div class="content-half">
       <div class="tag tag-blue">CIVL 526 · VIRTUAL DESIGN & CONSTRUCTION</div>
@@ -460,25 +471,25 @@ body.student-mode{background:var(--ubc-white);}
           <div class="crd-icon crd-icon-red">&#128293;</div>
           <h3>AI Clash Prioritization</h3>
           <p>Instead of reviewing 10,000 clashes manually, AI surfaces the critical 2% by severity and trade impact first</p>
-          <div class="tools"><span class="tool-t">BIMcollab</span><span class="tool-t">Solibri</span></div>
+          <div class="tools"><a href="https://www.bimcollab.com/" target="_blank" class="tool-link">BIMcollab<span class="tip-bubble"><span class="tip-name">BIMcollab</span>Cloud-based BIM coordination platform. AI-assisted clash prioritization surfaces critical issues from thousands of clashes.<span class="tip-url">bimcollab.com</span></span></a><a href="https://www.solibri.com/" target="_blank" class="tool-link">Solibri<span class="tip-bubble"><span class="tip-name">Solibri</span>BIM quality assurance and code checking. Rule-based + AI model validation for clash detection, accessibility, and code compliance.<span class="tip-url">solibri.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-blue">&#127968;</div>
           <h3>Generative Design</h3>
           <p>Define constraints and let AI explore thousands of feasible design options optimized for light, cost, or energy</p>
-          <div class="tools"><span class="tool-t">Autodesk Forma</span></div>
+          <div class="tools"><a href="https://www.autodesk.com/products/forma" target="_blank" class="tool-link">Autodesk Forma<span class="tip-bubble"><span class="tip-name">Autodesk Forma</span>AI-powered generative design for architecture and planning. Explores thousands of layout options optimized for daylight, wind, energy, and cost.<span class="tip-url">autodesk.com/forma</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-green">&#9989;</div>
           <h3>Auto Model Checking</h3>
           <p>Validate BIM models against building codes and specs — flagging non-compliant elements before they reach the field</p>
-          <div class="tools"><span class="tool-t">Invicara</span></div>
+          <div class="tools"><a href="https://invicara.com/" target="_blank" class="tool-link">Invicara<span class="tip-bubble"><span class="tip-name">Invicara</span>Digital twin platform for buildings. Automates BIM model validation against building codes and project specifications.<span class="tip-url">invicara.com</span></span></a></div>
         </div>
         <div class="crd">
           <div class="crd-icon crd-icon-gold">&#127760;</div>
           <h3>Digital Twin Inference</h3>
           <p>Live building models ingesting IoT sensor data, using AI for predictive maintenance and energy optimization</p>
-          <div class="tools"><span class="tool-t">Willow Twin</span></div>
+          <div class="tools"><a href="https://www.willowinc.com/" target="_blank" class="tool-link">Willow Twin<span class="tip-bubble"><span class="tip-name">Willow Twin</span>Enterprise digital twin platform. Ingests live IoT sensor data for predictive maintenance, energy optimization, and operations intelligence.<span class="tip-url">willowinc.com</span></span></a></div>
         </div>
       </div>
     </div>
@@ -490,9 +501,9 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="Last domain — Legal, your CIVL 524. AI can parse a 200-page CCDC contract and flag unusual clauses or risk allocation issues in minutes. Spec compliance checking compares submittals automatically. And LLMs are increasingly used for RFI drafting — not replacing the PM, but giving a solid first draft.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1450101499163-c8848e968bc7?w=1200&q=80" alt="Legal documents and contract">
+      <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&q=80" alt="Legal documents and contracts">
       <div class="img-overlay"></div>
-      <div class="img-credit">Photo: Helloquence / Unsplash</div>
+      <div class="img-credit">Photo: Scott Graham / Unsplash</div>
     </div>
     <div class="content-half">
       <div class="tag tag-blue">CIVL 524 · LEGAL ASPECTS</div>
@@ -500,15 +511,15 @@ body.student-mode{background:var(--ubc-white);}
       <div class="cards cards-2" style="grid-template-columns:1fr;">
         <div class="crd" style="display:flex;gap:16px;align-items:flex-start;">
           <div class="crd-icon crd-icon-blue" style="flex-shrink:0;">&#128220;</div>
-          <div><h3>AI Contract Review</h3><p>Parse 200-page CCDC contracts in minutes. Flag unusual clauses, missing provisions, risk allocation imbalances. Kira Systems, Claude, and GPT all handle this well.</p><div class="tools"><span class="tool-t">Kira Systems</span><span class="tool-t">Claude</span></div></div>
+          <div><h3>AI Contract Review</h3><p>Parse 200-page CCDC contracts in minutes. Flag unusual clauses, missing provisions, risk allocation imbalances. Kira Systems, Claude, and GPT all handle this well.</p><div class="tools"><a href="https://www.kirasystems.com/" target="_blank" class="tool-link">Kira Systems<span class="tip-bubble"><span class="tip-name">Kira Systems</span>AI contract analysis platform. Extracts and analyses clauses from construction contracts, flagging risk allocation and unusual provisions.<span class="tip-url">kirasystems.com</span></span></a><a href="https://claude.ai/" target="_blank" class="tool-link">Claude<span class="tip-bubble"><span class="tip-name">Claude (Anthropic)</span>Advanced LLM for reviewing contracts, identifying risk clauses, and summarising legal obligations in construction agreements.<span class="tip-url">claude.ai</span></span></a></div></div>
         </div>
         <div class="crd" style="display:flex;gap:16px;align-items:flex-start;">
           <div class="crd-icon crd-icon-gold" style="flex-shrink:0;">&#128269;</div>
-          <div><h3>Spec Compliance Checking</h3><p>Automatically compare submittals against project specifications. Flag non-conforming items before they reach the field. Reduces review time by 60–80%.</p><div class="tools"><span class="tool-t">Pype</span></div></div>
+          <div><h3>Spec Compliance Checking</h3><p>Automatically compare submittals against project specifications. Flag non-conforming items before they reach the field. Reduces review time by 60–80%.</p><div class="tools"><a href="https://www.pype.io/" target="_blank" class="tool-link">Pype<span class="tip-bubble"><span class="tip-name">Pype (Autodesk)</span>AI-powered submittal management. Auto-compares submittals against project specs to flag non-conforming items before field installation.<span class="tip-url">pype.io</span></span></a></div></div>
         </div>
         <div class="crd" style="display:flex;gap:16px;align-items:flex-start;">
           <div class="crd-icon crd-icon-green" style="flex-shrink:0;">&#128196;</div>
-          <div><h3>Document Intelligence</h3><p>Auto-classify RFIs, submittals, change orders. Draft responses. Extract structured data from daily reports. Turn unstructured docs into actionable information.</p><div class="tools"><span class="tool-t">Procore Copilot</span><span class="tool-t">GPT-4</span></div></div>
+          <div><h3>Document Intelligence</h3><p>Auto-classify RFIs, submittals, change orders. Draft responses. Extract structured data from daily reports. Turn unstructured docs into actionable information.</p><div class="tools"><a href="https://www.procore.com/" target="_blank" class="tool-link">Procore Copilot<span class="tip-bubble"><span class="tip-name">Procore Copilot</span>AI assistant in Procore. Auto-classifies RFIs, submittals, and change orders. Drafts responses using project context.<span class="tip-url">procore.com</span></span></a><a href="https://openai.com/chatgpt" target="_blank" class="tool-link">GPT-4<span class="tip-bubble"><span class="tip-name">GPT-4 (OpenAI)</span>Multimodal LLM for document intelligence — extracts structured data from daily reports, meeting minutes, and unstructured project documents.<span class="tip-url">openai.com/chatgpt</span></span></a></div></div>
         </div>
       </div>
     </div>
@@ -531,7 +542,7 @@ body.student-mode{background:var(--ubc-white);}
 <div class="slide s-split" data-notes="Here's exactly what I'm about to do. I'll open Claude, paste the Cascade Tower CSV, and use this prompt. Watch the screen — full interactive dashboard in about 60 seconds. This is exactly what you'll do next with your own dataset.">
   <div class="slide-inner">
     <div class="img-half">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Data dashboard">
+      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Data dashboard analytics">
       <div class="img-overlay"></div>
       <div class="img-credit">Photo: Luke Chesser / Unsplash</div>
     </div>
@@ -811,6 +822,38 @@ function uTD(){const m=Math.floor(ts/60),s=ts%60;const d=document.getElementById
 function toggleTimer(){if(tr){clearInterval(ti);tr=false;document.getElementById('tsb').textContent='Resume';}else{tr=true;document.getElementById('tsb').textContent='Pause';ti=setInterval(()=>{if(ts>0){ts--;uTD();}else{clearInterval(ti);tr=false;document.getElementById('tsb').textContent="Time's up!";}},1000);}}
 function resetTimer(){clearInterval(ti);tr=false;ts=25*60;uTD();document.getElementById('tsb').textContent='Start';}
 function copyPrompt(el){navigator.clipboard.writeText(el.textContent.replace('Click to copy','').replace('Copied!','').trim());el.classList.add('copied');setTimeout(()=>el.classList.remove('copied'),2000);}
+/* ── Global tooltip for tool-link hover ── */
+(function(){
+  const tip=document.createElement('div');
+  tip.className='global-tip';
+  document.body.appendChild(tip);
+  document.querySelectorAll('a.tool-link').forEach(a=>{
+    a.addEventListener('mouseenter',function(e){
+      const bubble=this.querySelector('.tip-bubble');
+      if(!bubble)return;
+      tip.innerHTML=bubble.innerHTML;
+      tip.classList.add('visible');
+      const r=this.getBoundingClientRect();
+      let left=r.left+r.width/2-130;
+      let top=r.top-tip.offsetHeight-10;
+      if(top<44) top=r.bottom+10;
+      if(left<8) left=8;
+      if(left+260>window.innerWidth) left=window.innerWidth-268;
+      tip.style.left=left+'px';
+      tip.style.top=top+'px';
+      // flip arrow if shown below
+      tip.style.setProperty('--arrow','');
+      if(top>r.bottom){
+        tip.classList.add('tip-below');
+      }else{
+        tip.classList.remove('tip-below');
+      }
+    });
+    a.addEventListener('mouseleave',function(){
+      tip.classList.remove('visible');
+    });
+  });
+})();
 show(0);uTD();
 </script>
 </body>
