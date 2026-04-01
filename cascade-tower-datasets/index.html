@@ -129,6 +129,68 @@
             background: #F2A900;
             flex-shrink: 0;
         }
+        .qr-section {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        .qr-section h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.4rem;
+        }
+        .qr-section .qr-subtitle {
+            font-size: 0.82rem;
+            color: #8892a4;
+            margin-bottom: 1.25rem;
+        }
+        .qr-wrapper {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        .qr-canvas-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            display: inline-block;
+            line-height: 0;
+        }
+        .qr-canvas-box img, .qr-canvas-box canvas { display: block; }
+        .short-link-row {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 0.6rem 1rem;
+        }
+        .short-link-row a {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #F2A900;
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+        .short-link-row a:hover { text-decoration: underline; }
+        .copy-btn {
+            background: rgba(242,169,0,0.15);
+            border: 1px solid rgba(242,169,0,0.25);
+            color: #F2A900;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(242,169,0,0.25); }
         .footer {
             text-align: center;
             margin-top: 2.5rem;
@@ -189,10 +251,34 @@
             </div>
         </div>
 
+        <div class="qr-section">
+            <h3>Open on Your Phone</h3>
+            <p class="qr-subtitle">Scan the QR code or type the short link in your browser</p>
+            <div class="qr-wrapper">
+                <div class="qr-canvas-box" id="qrCanvas"></div>
+                <div class="short-link-row">
+                    <a href="https://is.gd/SYZ2Dm" target="_blank" id="shortLink">is.gd/SYZ2Dm</a>
+                    <button class="copy-btn" onclick="navigator.clipboard.writeText('https://is.gd/SYZ2Dm').then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)})">Copy</button>
+                </div>
+            </div>
+        </div>
+
         <p class="footer">
             UBC Civil Engineering · CIVL 520–526 · Built with ❤️ for PCM students<br>
             <a href="https://www.ubc.ca">University of British Columbia</a>
         </p>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        new QRCode(document.getElementById("qrCanvas"), {
+            text: "https://devarshbhonde.github.io/cascade-tower-workshop/cascade-tower-datasets/",
+            width: 180,
+            height: 180,
+            colorDark: "#002145",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    </script>
 </body>
 </html>
