@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cascade Tower — Earned Value Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0f172a;
+  --bg-card: #1e293b;
+  --bg-card-hover: #262f3f;
+  --border: #334155;
+  --border-light: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  --green: #4ade80;
+  --green-bg: #14532d;
+  --red: #f87171;
+  --red-bg: #7f1d1d;
+  --amber: #fbbf24;
+  --amber-bg: #78350f;
+  --blue: #60a5fa;
+  --pink: #f472b6;
+  --purple: #a78bfa;
+  --orange: #fb923c;
+  --cyan: #22d3ee;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg-primary); color:var(--text-secondary); min-height:100vh; }
+
+/* ── Header ─────────────────────────────────────────────── */
+.header { background:linear-gradient(135deg,#1e293b,#0f172a); border-bottom:1px solid var(--border); padding:20px 32px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.header-left h1 { font-size:22px; font-weight:700; color:var(--text-primary); }
+.header-left .sub { font-size:12px; color:var(--text-muted); margin-top:3px; }
+.header-right { display:flex; gap:10px; }
+.btn { padding:8px 16px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text-secondary); transition:all .15s; }
+.btn:hover { border-color:var(--blue); color:var(--blue); }
+.btn.active { background:rgba(96,165,250,.15); border-color:var(--blue); color:var(--blue); }
+.btn-danger { border-color:#dc2626; color:var(--red); }
+.btn-danger:hover { background:rgba(248,113,113,.1); }
+.btn-green { border-color:#16a34a; color:var(--green); }
+.btn-green:hover { background:rgba(74,222,128,.1); }
+
+/* ── Tabs ───────────────────────────────────────────────── */
+.tabs { display:flex; gap:0; padding:0 32px; border-bottom:1px solid var(--border); background:var(--bg-card); }
+.tab { padding:12px 24px; font-size:13px; font-weight:600; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; }
+.tab:hover { color:var(--text-secondary); }
+.tab.active { color:var(--blue); border-bottom-color:var(--blue); }
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* ── KPI cards ──────────────────────────────────────────── */
+.kpi-row { display:grid; grid-template-columns:repeat(6,1fr); gap:14px; padding:20px 32px; }
+.kpi { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px 18px; transition:border-color .15s; }
+.kpi:hover { border-color:var(--border-light); }
+.kpi .label { font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); margin-bottom:5px; }
+.kpi .value { font-size:24px; font-weight:700; }
+.kpi .detail { font-size:10px; color:var(--text-muted); margin-top:3px; }
+.kpi .sparkbar { height:4px; border-radius:2px; margin-top:8px; background:#1e293b; overflow:hidden; }
+.kpi .sparkbar-fill { height:100%; border-radius:2px; transition:width .5s; }
+
+/* ── Charts ─────────────────────────────────────────────── */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; padding:0 32px 20px; }
+.chart-card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; position:relative; }
+.chart-card.full { grid-column:1/-1; }
+.chart-card h3 { font-size:13px; font-weight:600; color:var(--text-primary); margin-bottom:4px; display:flex; align-items:center; gap:8px; }
+.chart-card h3 .badge-info { font-size:9px; padding:2px 7px; border-radius:4px; background:rgba(96,165,250,.15); color:var(--blue); font-weight:600; cursor:pointer; }
+.chart-subtitle { font-size:11px; color:var(--text-dim); margin-bottom:14px; }
+
+/* ── Insight boxes ──────────────────────────────────────── */
+.insight-box { background:rgba(96,165,250,.06); border:1px solid rgba(96,165,250,.2); border-radius:8px; padding:12px 16px; margin-top:12px; display:none; }
+.insight-box.open { display:block; }
+.insight-box h4 { font-size:11px; font-weight:700; color:var(--blue); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+.insight-box p { font-size:12px; color:var(--text-secondary); line-height:1.6; }
+.insight-box .metric-highlight { display:inline-block; padding:1px 6px; border-radius:3px; font-weight:600; font-size:11px; }
+.insight-box .bad { background:var(--red-bg); color:#fca5a5; }
+.insight-box .ok { background:var(--amber-bg); color:#fcd34d; }
+.insight-box .good { background:var(--green-bg); color:#86efac; }
+
+/* ── Event banner ───────────────────────────────────────── */
+.event-banner { margin:0 32px 18px; background:linear-gradient(135deg,#7f1d1d,#991b1b); border:1px solid #dc2626; border-radius:10px; padding:12px 18px; font-size:12px; color:#fecaca; display:flex; align-items:flex-start; gap:10px; }
+.event-banner strong { color:#fff; }
+
+/* ── Data table ─────────────────────────────────────────── */
+.table-wrap { padding:0 32px 20px; overflow-x:auto; }
+.table-wrap h3 { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:10px; display:flex; align-items:center; gap:12px; }
+table.ev { width:100%; border-collapse:collapse; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; font-size:12px; }
+table.ev th { background:#334155; padding:9px 12px; text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); font-weight:600; position:sticky; top:0; }
+table.ev th:first-child, table.ev th:nth-child(2) { text-align:left; }
+table.ev td { padding:8px 12px; border-top:1px solid #151d2e; text-align:right; color:var(--text-secondary); }
+table.ev td:first-child { text-align:left; font-weight:600; color:var(--text-primary); }
+table.ev td:nth-child(2) { text-align:left; }
+table.ev tr:hover td { background:var(--bg-card-hover); }
+table.ev tr.event-row td { background:#2d1b1b; }
+table.ev td:last-child { text-align:left; max-width:200px; font-size:11px; }
+table.ev input { width:80px; background:#0f172a; border:1px solid var(--border); color:var(--text-primary); padding:4px 6px; border-radius:4px; font-size:11px; text-align:right; font-family:inherit; }
+table.ev input:focus { outline:none; border-color:var(--blue); box-shadow:0 0 0 2px rgba(96,165,250,.2); }
+
+/* ── What-if panel ──────────────────────────────────────── */
+.whatif-panel { margin:0 32px 18px; background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:none; }
+.whatif-panel.open { display:block; }
+.whatif-panel h3 { font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:14px; }
+.whatif-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.whatif-group label { display:block; font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+.whatif-group input[type=range] { width:100%; accent-color:var(--blue); }
+.whatif-group .range-value { font-size:18px; font-weight:700; color:var(--text-primary); }
+.whatif-group .range-detail { font-size:10px; color:var(--text-dim); margin-top:2px; }
+.whatif-results { margin-top:16px; display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+.whatif-result { background:var(--bg-primary); border-radius:8px; padding:12px; }
+.whatif-result .label { font-size:10px; color:var(--text-dim); text-transform:uppercase; }
+.whatif-result .value { font-size:20px; font-weight:700; margin-top:4px; }
+
+/* ── Phase filter ───────────────────────────────────────── */
+.filter-bar { padding:0 32px; margin-bottom:14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.filter-bar .label { font-size:11px; color:var(--text-dim); margin-right:4px; }
+.filter-chip { padding:5px 12px; border-radius:6px; font-size:11px; font-weight:500; border:1px solid var(--border); background:transparent; color:var(--text-muted); cursor:pointer; transition:all .15s; }
+.filter-chip:hover { border-color:var(--blue); color:var(--blue); }
+.filter-chip.active { background:rgba(96,165,250,.12); border-color:var(--blue); color:var(--blue); }
+
+/* ── Footer ─────────────────────────────────────────────── */
+.footer { text-align:center; padding:20px; font-size:11px; color:#334155; border-top:1px solid #1e293b; }
+
+canvas { max-height:320px; }
+
+@media(max-width:1100px){
+  .kpi-row { grid-template-columns:repeat(3,1fr); }
+  .charts-grid { grid-template-columns:1fr; }
+  .whatif-grid { grid-template-columns:1fr; }
+  .whatif-results { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ HEADER ════════ -->
+<div class="header">
+  <div class="header-left">
+    <h1>Cascade Tower — Earned Value Management Dashboard</h1>
+    <div class="sub">25-Storey Mixed-Use Tower &nbsp;|&nbsp; $82.0M CAD &nbsp;|&nbsp; 18 Months &nbsp;|&nbsp; Reporting: March 2026 (Month 15 of 18)</div>
+  </div>
+  <div class="header-right">
+    <button class="btn" onclick="toggleWhatIf()">What-If Scenarios</button>
+    <button class="btn" onclick="toggleAllInsights()">Show / Hide Explanations</button>
+    <button class="btn btn-danger" onclick="resetData()">Reset Data</button>
+  </div>
+</div>
+
+<!-- ════════ TABS ════════ -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('dashboard',this)">Dashboard</div>
+  <div class="tab" onclick="switchTab('table',this)">Editable Data Table</div>
+</div>
+
+<!-- ════════ TAB: DASHBOARD ════════ -->
+<div id="tab-dashboard" class="tab-content active">
+
+<!-- ── KPIs ────────────────────────────────────────────── -->
+<div class="kpi-row" id="kpiRow"></div>
+
+<!-- ── Event Banner ───────────────────────────────────── -->
+<div class="event-banner">
+  <span style="font-size:18px">&#9888;</span>
+  <div><strong>Key Project Event — June 2025 (Month 6):</strong> Original curtain wall supplier failed thermal cycling QA. Project switched to GlassWorks Pacific unitized system. 4-week redesign + 3-week delivery delay = <strong>21-day critical path impact</strong> and <strong>$2.8M cost increase</strong>. This event is the primary driver of all variance shown below.</div>
+</div>
+
+<!-- ── What-If Panel ──────────────────────────────────── -->
+<div class="whatif-panel" id="whatifPanel">
+  <h3>What-If Scenario Modelling</h3>
+  <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Adjust the sliders to model future performance for the remaining 3 months (Apr–Jun 2026). The forecast metrics update in real-time.</p>
+  <div class="whatif-grid">
+    <div class="whatif-group">
+      <label>Future monthly CPI (cost efficiency)</label>
+      <div class="range-value" id="wiCpiVal">0.95</div>
+      <input type="range" min="0.80" max="1.15" step="0.01" value="0.95" id="wiCpi" oninput="updateWhatIf()">
+      <div class="range-detail">Current cumulative CPI: 0.95</div>
+    </div>
+    <div class="whatif-group">
+      <label>Future monthly SPI (schedule efficiency)</label>
+      <div class="range-value" id="wiSpiVal">1.00</div>
+      <input type="range" min="0.80" max="1.20" step="0.01" value="1.00" id="wiSpi" oninput="updateWhatIf()">
+      <div class="range-detail">Current cumulative SPI: 0.92</div>
+    </div>
+    <div class="whatif-group">
+      <label>Monthly burn rate adjustment</label>
+      <div class="range-value" id="wiBurnVal">100%</div>
+      <input type="range" min="80" max="130" step="1" value="100" id="wiBurn" oninput="updateWhatIf()">
+      <div class="range-detail">Increase for acceleration, decrease for slowdown</div>
+    </div>
+  </div>
+  <div class="whatif-results" id="whatifResults"></div>
+</div>
+
+<!-- ── Phase Filter ───────────────────────────────────── -->
+<div class="filter-bar">
+  <span class="label">Highlight phase:</span>
+  <button class="filter-chip active" onclick="setPhaseFilter('all',this)">All Months</button>
+  <button class="filter-chip" onclick="setPhaseFilter('Preconstruction',this)">Preconstruction</button>
+  <button class="filter-chip" onclick="setPhaseFilter('Substructure',this)">Substructure</button>
+  <button class="filter-chip" onclick="setPhaseFilter('Superstructure',this)">Superstructure</button>
+  <button class="filter-chip" onclick="setPhaseFilter('Envelope',this)">Envelope</button>
+  <button class="filter-chip" onclick="setPhaseFilter('Interior',this)">Interior</button>
+</div>
+
+<!-- ── Charts ─────────────────────────────────────────── -->
+<div class="charts-grid">
+
+  <!-- S-Curve -->
+  <div class="chart-card full">
+    <h3>Cumulative S-Curve <span class="badge-info" onclick="toggleInsight('ins-scurve')">?&nbsp;What is this?</span></h3>
+    <div class="chart-subtitle">Planned Value (BCWS) vs Earned Value (BCWP) vs Actual Cost (ACWP) — cumulative CAD</div>
+    <canvas id="scurveChart"></canvas>
+    <div class="insight-box" id="ins-scurve">
+      <h4>How to read the S-Curve</h4>
+      <p>The S-Curve is the most fundamental EVM visualization. It plots three cumulative cost curves over time. The <span class="metric-highlight ok">blue line (BCWS)</span> is your baseline plan — how much value you <em>should</em> have earned by each month. The <span class="metric-highlight good">green line (BCWP)</span> is how much value you <em>actually</em> earned. The <span class="metric-highlight bad">red line (ACWP)</span> is how much you actually <em>spent</em>.</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> On Cascade Tower, the green line (earned) has fallen consistently below the blue line (planned) since Month 6 — this is the <span class="metric-highlight bad">schedule variance gap</span> caused by the facade supplier failure. Meanwhile, the red line (actual cost) runs above the green line — meaning we're spending more than we're earning, a <span class="metric-highlight bad">cost overrun of $3.6M</span>. Both gaps opened in Month 6 and have not recovered.</p>
+    </div>
+  </div>
+
+  <!-- SPI -->
+  <div class="chart-card">
+    <h3>Schedule Performance Index (SPI) <span class="badge-info" onclick="toggleInsight('ins-spi')">?</span></h3>
+    <div class="chart-subtitle">Monthly and cumulative — target is 1.00</div>
+    <canvas id="spiChart"></canvas>
+    <div class="insight-box" id="ins-spi">
+      <h4>What SPI tells you</h4>
+      <p>SPI = Earned Value / Planned Value. An SPI of <span class="metric-highlight good">1.00</span> means on schedule. Below 1.00 = behind, above = ahead. The monthly SPI (solid purple) shows <em>that period's</em> efficiency, while the cumulative SPI (dashed blue) shows the <em>overall project trend</em>.</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> Two sharp SPI drops stand out — <span class="metric-highlight bad">Month 6 (SPI 0.85)</span> when the facade QA failure hit, and <span class="metric-highlight bad">Month 11 (SPI 0.81)</span> when the new facade actually arrived 3 weeks late. The cumulative SPI has settled at <span class="metric-highlight ok">0.92</span>, meaning Cascade Tower is earning value at 92% of the planned rate. To finish on time, the remaining work would need to achieve an SPI of ~1.25 — which is very aggressive and unlikely without acceleration.</p>
+    </div>
+  </div>
+
+  <!-- CPI -->
+  <div class="chart-card">
+    <h3>Cost Performance Index (CPI) <span class="badge-info" onclick="toggleInsight('ins-cpi')">?</span></h3>
+    <div class="chart-subtitle">Monthly and cumulative — target is 1.00</div>
+    <canvas id="cpiChart"></canvas>
+    <div class="insight-box" id="ins-cpi">
+      <h4>What CPI tells you</h4>
+      <p>CPI = Earned Value / Actual Cost. A CPI of <span class="metric-highlight good">1.00</span> means every dollar spent earns a dollar of value. Below 1.00 = cost overrun, above = under budget. CPI is considered the most reliable EVM metric — research shows that after a project is 20% complete, the cumulative CPI rarely improves by more than 10%.</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> Cascade Tower's CPI has been remarkably stable at <span class="metric-highlight ok">0.94–0.97</span> throughout — never crashing badly but never recovering to 1.00 either. The cumulative CPI of <span class="metric-highlight ok">0.95</span> means for every $1.00 spent, we only earn $0.95 of value. At 81.9% complete, this CPI is very unlikely to improve (per the "CPI stability rule"), so the project will finish over budget. EAC = BAC / CPI = $82M / 0.95 = ~$86.3M.</p>
+    </div>
+  </div>
+
+  <!-- Variance -->
+  <div class="chart-card">
+    <h3>Monthly Schedule & Cost Variance <span class="badge-info" onclick="toggleInsight('ins-var')">?</span></h3>
+    <div class="chart-subtitle">Negative = behind schedule (SV) or over budget (CV)</div>
+    <canvas id="varianceChart"></canvas>
+    <div class="insight-box" id="ins-var">
+      <h4>Reading variance bars</h4>
+      <p>Schedule Variance (SV) = EV − PV. Cost Variance (CV) = EV − AC. Both are in absolute dollar terms. Negative bars mean underperformance. These are useful for identifying <em>which specific months</em> had the worst performance.</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> The largest schedule variance hits are <span class="metric-highlight bad">Month 11 (−$1.2M)</span> and <span class="metric-highlight bad">Month 6 (−$800K)</span> — both facade-related events. Cost variance is more evenly distributed at <span class="metric-highlight ok">−$150K to −$350K per month</span>, suggesting a systemic 3–5% cost overrun rather than a single blowout. The consistent negative CV across all 15 months confirms this is a project-wide efficiency issue, not a one-off.</p>
+    </div>
+  </div>
+
+  <!-- EAC -->
+  <div class="chart-card">
+    <h3>Estimate at Completion (EAC) Trend <span class="badge-info" onclick="toggleInsight('ins-eac')">?</span></h3>
+    <div class="chart-subtitle">Forecasted final project cost vs original budget</div>
+    <canvas id="eacChart"></canvas>
+    <div class="insight-box" id="ins-eac">
+      <h4>What EAC tells the owner</h4>
+      <p>EAC is the forecasted total cost when the project finishes. It's calculated as: EAC = ACWP + (BAC − BCWP) / CPI. This assumes future work will be performed at the <em>current</em> cost efficiency. The dashed line is the original Budget at Completion (BAC = $82M).</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> EAC has climbed steadily from $82.0M to <span class="metric-highlight bad">$85.9M</span> — a <span class="metric-highlight bad">$3.9M (4.8%)</span> projected overrun. The steepest jump was between Months 5–7 (facade event). Since Month 9 the EAC has risen more slowly (~$200K/month), suggesting cost performance has stabilized but not recovered. With original contingency at $4.1M (5% of BAC), the project has consumed $3.2M in contingency and has only <span class="metric-highlight bad">$900K remaining</span> for the final 3 months.</p>
+    </div>
+  </div>
+
+  <!-- Monthly spend -->
+  <div class="chart-card">
+    <h3>Monthly Spend Profile <span class="badge-info" onclick="toggleInsight('ins-spend')">?</span></h3>
+    <div class="chart-subtitle">BCWS vs BCWP vs ACWP per month — non-cumulative</div>
+    <canvas id="spendChart"></canvas>
+    <div class="insight-box" id="ins-spend">
+      <h4>Monthly cash flow pattern</h4>
+      <p>This chart shows the monthly (non-cumulative) values of planned spend, earned value, and actual cost. Unlike the S-curve which shows running totals, this reveals the <em>shape</em> of each month's performance individually.</p>
+      <p style="margin-top:8px;"><strong>Key takeaway:</strong> Peak spend occurred in Months 7–9 ($6.0–6.5M/month) during the superstructure phase — which is typical for a high-rise project. The spend profile shows a clear bell curve. Notice that ACWP (red) consistently exceeds BCWP (green) every single month — confirming the systemic cost inefficiency. The monthly BCWS (blue) peaked at $6.5M in Month 8 and has since declined, which is expected as the project transitions from heavy structure/envelope work to finishes and commissioning.</p>
+    </div>
+  </div>
+
+</div><!-- /charts-grid -->
+</div><!-- /tab-dashboard -->
+
+<!-- ════════ TAB: EDITABLE TABLE ════════ -->
+<div id="tab-table" class="tab-content">
+  <div style="padding:20px 32px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <div>
+        <h3 style="font-size:16px;font-weight:600;color:var(--text-primary);">Editable Earned Value Data</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:4px;">Click any BCWS, BCWP, or ACWP cell to edit. All derived metrics (SPI, CPI, SV, CV, cumulative values, EAC) recalculate automatically. Charts update in real time.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-green" onclick="addMonth()">+ Add Month</button>
+        <button class="btn btn-danger" onclick="resetData()">Reset to Original</button>
+        <button class="btn" onclick="exportCSV()">Export CSV</button>
+      </div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="ev" id="evTable">
+      <thead>
+        <tr>
+          <th style="text-align:left">Month</th>
+          <th style="text-align:left">Phase</th>
+          <th>BCWS (PV)</th>
+          <th>BCWP (EV)</th>
+          <th>ACWP (AC)</th>
+          <th>SPI</th>
+          <th>CPI</th>
+          <th>SV ($)</th>
+          <th>CV ($)</th>
+          <th>Cum. BCWS</th>
+          <th>Cum. BCWP</th>
+          <th>Cum. ACWP</th>
+          <th>Cum. SPI</th>
+          <th>Cum. CPI</th>
+          <th>EAC</th>
+          <th style="text-align:left">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="evTableBody"></tbody>
+    </table>
+  </div>
+  <div style="padding:8px 32px 20px;">
+    <div class="insight-box open" style="border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.05);">
+      <h4 style="color:var(--amber);">How the editable table works</h4>
+      <p>The three input columns — BCWS, BCWP, and ACWP — are editable. When you change a value, the entire row and all subsequent rows recalculate their derived metrics automatically. This lets you explore questions like: <em>"What if we had earned $5.5M instead of $4.4M in June? How would the project look now?"</em> or <em>"What happens to EAC if actual costs drop by 10% for the remaining months?"</em> All charts on the Dashboard tab update instantly when you switch back.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ FOOTER ════════ -->
+<div class="footer">Cascade Tower — AI Workshop Demo &nbsp;|&nbsp; UBC MEng Project & Construction Management &nbsp;|&nbsp; All data is fictional — created for educational purposes &nbsp;|&nbsp; Built with AI</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════
+const BAC = 82000000;
+const originalData = [
+  {month:"Jan-25",num:1,phase:"Preconstruction",bcws:1200000,bcwp:1180000,acwp:1150000,notes:"Mobilization and site prep on track",event:false},
+  {month:"Feb-25",num:2,phase:"Preconstruction",bcws:1800000,bcwp:1650000,acwp:1700000,notes:"Permit delays - city review backlog",event:false},
+  {month:"Mar-25",num:3,phase:"Substructure",bcws:3500000,bcwp:3400000,acwp:3600000,notes:"Excavation started - rock encountered at P2",event:false},
+  {month:"Apr-25",num:4,phase:"Substructure",bcws:4200000,bcwp:4000000,acwp:4350000,notes:"Foundation piling slower due to rock",event:false},
+  {month:"May-25",num:5,phase:"Substructure",bcws:4800000,bcwp:4600000,acwp:4750000,notes:"P1 and P2 slabs progressing",event:false},
+  {month:"Jun-25",num:6,phase:"Substructure/Superstructure",bcws:5200000,bcwp:4400000,acwp:4600000,notes:"FACADE SUPPLIER FAILED QA — redesign initiated",event:true},
+  {month:"Jul-25",num:7,phase:"Superstructure",bcws:6000000,bcwp:5500000,acwp:5800000,notes:"Core walls Fl 1-5. Facade redesign ongoing.",event:false},
+  {month:"Aug-25",num:8,phase:"Superstructure",bcws:6500000,bcwp:6200000,acwp:6500000,notes:"Formwork crew shortage resolved. PT slabs Fl 1-5.",event:false},
+  {month:"Sep-25",num:9,phase:"Superstructure",bcws:6200000,bcwp:5800000,acwp:6100000,notes:"Facade procurement complete. Core Fl 6-12.",event:false},
+  {month:"Oct-25",num:10,phase:"Superstructure",bcws:5800000,bcwp:5600000,acwp:5850000,notes:"Concrete pump breakdown - 2 days lost",event:false},
+  {month:"Nov-25",num:11,phase:"Superstructure/Envelope",bcws:6400000,bcwp:5200000,acwp:5500000,notes:"CURTAIN WALL DELIVERY 3 WEEKS LATE",event:true},
+  {month:"Dec-25",num:12,phase:"Superstructure/Envelope",bcws:5600000,bcwp:5000000,acwp:5300000,notes:"Core topped out Fl 21. Curtain wall Fl 1-8.",event:false},
+  {month:"Jan-26",num:13,phase:"Envelope/Interior",bcws:5400000,bcwp:5100000,acwp:5400000,notes:"Curtain wall Fl 1-8 complete. BAS install.",event:false},
+  {month:"Feb-26",num:14,phase:"Envelope/Interior",bcws:5200000,bcwp:4900000,acwp:5200000,notes:"Curtain wall Fl 9-16. Roofing complete.",event:false},
+  {month:"Mar-26",num:15,phase:"Envelope/Interior",bcws:5000000,bcwp:4600000,acwp:4900000,notes:"Curtain wall Fl 17-25 at 65%. Commissioning planning.",event:false}
+];
+
+let data = JSON.parse(JSON.stringify(originalData));
+let allInsightsOpen = false;
+let activePhase = 'all';
+
+// ── Derived calcs ────────────────────────────────────────
+function recalc() {
+  let cBcws=0, cBcwp=0, cAcwp=0;
+  data.forEach(d => {
+    cBcws += d.bcws; cBcwp += d.bcwp; cAcwp += d.acwp;
+    d.spi = d.bcws > 0 ? +(d.bcwp/d.bcws).toFixed(2) : 0;
+    d.cpi = d.acwp > 0 ? +(d.bcwp/d.acwp).toFixed(2) : 0;
+    d.sv = d.bcwp - d.bcws;
+    d.cv = d.bcwp - d.acwp;
+    d.cumBcws = cBcws; d.cumBcwp = cBcwp; d.cumAcwp = cAcwp;
+    d.cumSpi = cBcws > 0 ? +(cBcwp/cBcws).toFixed(2) : 0;
+    d.cumCpi = cAcwp > 0 ? +(cBcwp/cAcwp).toFixed(2) : 0;
+    d.eac = d.cumCpi > 0 ? Math.round(cAcwp + (BAC - cBcwp) / d.cumCpi) : BAC;
+    d.vac = BAC - d.eac;
+  });
+}
+recalc();
+
+// ══════════════════════════════════════════════════════════
+//  RENDERING HELPERS
+// ══════════════════════════════════════════════════════════
+const fmt = v => '$'+(v/1e6).toFixed(1)+'M';
+const fmtK = v => (v<0?'-':'')+'$'+(Math.abs(v)/1e3).toFixed(0)+'K';
+const fmtFull = v => '$'+v.toLocaleString();
+const clr = (v,tgt=1) => v<tgt*0.92?'var(--red)':v<tgt?'var(--amber)':'var(--green)';
+const clrClass = (v,tgt=1) => v<tgt*0.92?'red':v<tgt?'amber':'green';
+
+// ══════════════════════════════════════════════════════════
+//  KPIs
+// ══════════════════════════════════════════════════════════
+function renderKPIs() {
+  const last = data[data.length-1];
+  const pctEarned = (last.cumBcwp / BAC * 100).toFixed(1);
+  const costOver = last.eac - BAC;
+  const kpis = [
+    {label:'Budget at Completion',value:fmt(BAC),detail:'Original contract value',color:'var(--text-primary)',bar:100,barColor:'var(--blue)'},
+    {label:'Earned to Date',value:fmt(last.cumBcwp),detail:pctEarned+'% of BAC earned',color:'var(--blue)',bar:parseFloat(pctEarned),barColor:'var(--blue)'},
+    {label:'Actual Cost to Date',value:fmt(last.cumAcwp),detail:fmtFull(last.cumAcwp-last.cumBcwp)+' over earned value',color:'var(--red)',bar:last.cumAcwp/BAC*100,barColor:'var(--red)'},
+    {label:'Schedule Performance (SPI)',value:last.cumSpi.toFixed(2),detail:last.cumSpi<1?'Behind schedule (target ≥ 1.00)':'On or ahead of schedule',color:clr(last.cumSpi),bar:last.cumSpi*100,barColor:clr(last.cumSpi)},
+    {label:'Cost Performance (CPI)',value:last.cumCpi.toFixed(2),detail:last.cumCpi<1?'Over budget (target ≥ 1.00)':'On or under budget',color:clr(last.cumCpi),bar:last.cumCpi*100,barColor:clr(last.cumCpi)},
+    {label:'Estimate at Completion',value:fmt(last.eac),detail:fmt(Math.abs(costOver))+' '+(costOver>0?'over':'under')+' BAC ('+(Math.abs(costOver)/BAC*100).toFixed(1)+'%)',color:costOver>0?'var(--red)':'var(--green)',bar:Math.min(last.eac/BAC*100*0.9,100),barColor:costOver>0?'var(--red)':'var(--green)'}
+  ];
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = kpis.map(k=>`
+    <div class="kpi">
+      <div class="label">${k.label}</div>
+      <div class="value" style="color:${k.color}">${k.value}</div>
+      <div class="detail">${k.detail}</div>
+      <div class="sparkbar"><div class="sparkbar-fill" style="width:${Math.min(k.bar,100)}%;background:${k.barColor}"></div></div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  TABLE
+// ══════════════════════════════════════════════════════════
+function renderTable() {
+  const tbody = document.getElementById('evTableBody');
+  tbody.innerHTML = data.map((d,i) => {
+    const rc = d.event?'event-row':'';
+    return `<tr class="${rc}">
+      <td>${d.month}</td>
+      <td>${d.phase}</td>
+      <td><input type="text" value="${d.bcws.toLocaleString()}" data-i="${i}" data-f="bcws" onchange="editCell(this)"></td>
+      <td><input type="text" value="${d.bcwp.toLocaleString()}" data-i="${i}" data-f="bcwp" onchange="editCell(this)"></td>
+      <td><input type="text" value="${d.acwp.toLocaleString()}" data-i="${i}" data-f="acwp" onchange="editCell(this)"></td>
+      <td style="color:${clr(d.spi)};font-weight:600">${d.spi.toFixed(2)}</td>
+      <td style="color:${clr(d.cpi)};font-weight:600">${d.cpi.toFixed(2)}</td>
+      <td style="color:${d.sv<0?'var(--red)':'var(--green)'}">${fmtK(d.sv)}</td>
+      <td style="color:${d.cv<0?'var(--red)':'var(--green)'}">${fmtK(d.cv)}</td>
+      <td>${fmt(d.cumBcws)}</td>
+      <td>${fmt(d.cumBcwp)}</td>
+      <td>${fmt(d.cumAcwp)}</td>
+      <td style="color:${clr(d.cumSpi)}">${d.cumSpi.toFixed(2)}</td>
+      <td style="color:${clr(d.cumCpi)}">${d.cumCpi.toFixed(2)}</td>
+      <td style="color:${d.eac>BAC?'var(--red)':'var(--green)'}">${fmt(d.eac)}</td>
+      <td>${d.notes}</td>
+    </tr>`;
+  }).join('');
+}
+
+function editCell(el) {
+  const i = +el.dataset.i, f = el.dataset.f;
+  const v = parseFloat(el.value.replace(/[^0-9.-]/g,''));
+  if (isNaN(v)) { el.value = data[i][f].toLocaleString(); return; }
+  data[i][f] = v;
+  recalc();
+  renderAll();
+}
+
+function addMonth() {
+  const last = data[data.length-1];
+  const nextNum = last.num+1;
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const yr = nextNum <= 12 ? '25' : '26';
+  const mIdx = (nextNum-1) % 12;
+  data.push({month:months[mIdx]+'-'+yr, num:nextNum, phase:'Closeout', bcws:3000000, bcwp:3000000, acwp:3100000, notes:'(Added by user)', event:false});
+  recalc();
+  renderAll();
+}
+
+function resetData() {
+  data = JSON.parse(JSON.stringify(originalData));
+  recalc();
+  renderAll();
+}
+
+function exportCSV() {
+  const hdr = 'Month,Phase,BCWS,BCWP,ACWP,SPI,CPI,SV,CV,Cum_BCWS,Cum_BCWP,Cum_ACWP,Cum_SPI,Cum_CPI,EAC,Notes\n';
+  const rows = data.map(d => [d.month,d.phase,d.bcws,d.bcwp,d.acwp,d.spi,d.cpi,d.sv,d.cv,d.cumBcws,d.cumBcwp,d.cumAcwp,d.cumSpi,d.cumCpi,d.eac,'"'+d.notes+'"'].join(',')).join('\n');
+  const blob = new Blob([hdr+rows],{type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cascade_tower_ev_edited.csv';
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════
+//  CHARTS
+// ══════════════════════════════════════════════════════════
+let charts = {};
+const chartOpts = {
+  responsive:true,
+  animation:{duration:400},
+  plugins:{legend:{position:'top',labels:{color:'#94a3b8',font:{size:10},boxWidth:12,padding:10}}},
+};
+
+function getPhaseAlpha(d) {
+  if (activePhase === 'all') return 1;
+  return d.phase.includes(activePhase) ? 1 : 0.15;
+}
+
+function buildCharts() {
+  Object.values(charts).forEach(c => c.destroy());
+  charts = {};
+
+  const labels = data.map(d => d.month);
+  const alphas = data.map(d => getPhaseAlpha(d));
+
+  // ── S-Curve ──
+  charts.scurve = new Chart(document.getElementById('scurveChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'BCWS (Planned Value)',data:data.map(d=>d.cumBcws),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.08)',borderWidth:2.5,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:data.map((d,i)=>`rgba(96,165,250,${alphas[i]})`)},
+        {label:'BCWP (Earned Value)',data:data.map(d=>d.cumBcwp),borderColor:'#4ade80',backgroundColor:'rgba(74,222,128,0.08)',borderWidth:2.5,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:data.map((d,i)=>`rgba(74,222,128,${alphas[i]})`)},
+        {label:'ACWP (Actual Cost)',data:data.map(d=>d.cumAcwp),borderColor:'#f87171',backgroundColor:'rgba(248,113,113,0.08)',borderWidth:2.5,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:data.map((d,i)=>`rgba(248,113,113,${alphas[i]})`)}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10},callback:v=>fmt(v)},grid:{color:'#1e293b'},min:0}}}
+  });
+
+  // ── SPI ──
+  charts.spi = new Chart(document.getElementById('spiChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Monthly SPI',data:data.map(d=>d.spi),borderColor:'#a78bfa',backgroundColor:'rgba(167,139,250,0.12)',borderWidth:2,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:data.map(d=>d.spi<.9?'#f87171':d.spi<.95?'#fbbf24':'#4ade80'),segment:{borderColor:ctx=>{const v=ctx.p1.parsed.y;return v<.9?'rgba(248,113,113,0.6)':v<.95?'rgba(251,191,36,0.6)':'rgba(167,139,250,1)';}}},
+        {label:'Cumulative SPI',data:data.map(d=>d.cumSpi),borderColor:'#60a5fa',borderWidth:1.5,borderDash:[6,3],fill:false,tension:.3,pointRadius:2},
+        {label:'Target (1.00)',data:data.map(()=>1),borderColor:'#334155',borderWidth:1,borderDash:[4,4],fill:false,pointRadius:0}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'},min:.7,max:1.15}}}
+  });
+
+  // ── CPI ──
+  charts.cpi = new Chart(document.getElementById('cpiChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Monthly CPI',data:data.map(d=>d.cpi),borderColor:'#fb923c',backgroundColor:'rgba(251,146,60,0.12)',borderWidth:2,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:data.map(d=>d.cpi<.9?'#f87171':d.cpi<.95?'#fbbf24':'#4ade80')},
+        {label:'Cumulative CPI',data:data.map(d=>d.cumCpi),borderColor:'#60a5fa',borderWidth:1.5,borderDash:[6,3],fill:false,tension:.3,pointRadius:2},
+        {label:'Target (1.00)',data:data.map(()=>1),borderColor:'#334155',borderWidth:1,borderDash:[4,4],fill:false,pointRadius:0}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'},min:.82,max:1.1}}}
+  });
+
+  // ── Variance ──
+  charts.variance = new Chart(document.getElementById('varianceChart'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Schedule Variance (SV)',data:data.map(d=>d.sv),backgroundColor:data.map((d,i)=>{const a=alphas[i];return d.sv<-500000?`rgba(248,113,113,${.8*a})`:d.sv<0?`rgba(251,191,36,${.6*a})`:`rgba(74,222,128,${.6*a})`;}),borderRadius:3},
+        {label:'Cost Variance (CV)',data:data.map(d=>d.cv),backgroundColor:data.map((d,i)=>{const a=alphas[i];return d.cv<-200000?`rgba(248,113,113,${.5*a})`:d.cv<0?`rgba(251,191,36,${.35*a})`:`rgba(74,222,128,${.35*a})`;}),borderRadius:3}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10},callback:v=>fmtK(v)},grid:{color:'#1e293b'}}}}
+  });
+
+  // ── EAC ──
+  charts.eac = new Chart(document.getElementById('eacChart'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Estimate at Completion (EAC)',data:data.map(d=>d.eac),borderColor:'#f472b6',backgroundColor:'rgba(244,114,182,0.12)',borderWidth:2.5,fill:true,tension:.3,pointRadius:4,pointBackgroundColor:'#f472b6'},
+        {label:'BAC ($82.0M)',data:data.map(()=>BAC),borderColor:'#334155',borderWidth:1.5,borderDash:[6,3],fill:false,pointRadius:0}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10},callback:v=>fmt(v)},grid:{color:'#1e293b'}}}}
+  });
+
+  // ── Monthly Spend ──
+  charts.spend = new Chart(document.getElementById('spendChart'), {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'BCWS (Planned)',data:data.map(d=>d.bcws),backgroundColor:data.map((d,i)=>`rgba(96,165,250,${.55*alphas[i]})`),borderRadius:3,barPercentage:.85},
+        {label:'BCWP (Earned)',data:data.map(d=>d.bcwp),backgroundColor:data.map((d,i)=>`rgba(74,222,128,${.55*alphas[i]})`),borderRadius:3,barPercentage:.85},
+        {label:'ACWP (Actual)',data:data.map(d=>d.acwp),backgroundColor:data.map((d,i)=>`rgba(248,113,113,${.45*alphas[i]})`),borderRadius:3,barPercentage:.85}
+      ]
+    },
+    options:{...chartOpts,scales:{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e293b'}},y:{ticks:{color:'#64748b',font:{size:10},callback:v=>fmt(v)},grid:{color:'#1e293b'}}}}
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+//  WHAT-IF
+// ══════════════════════════════════════════════════════════
+function toggleWhatIf() {
+  document.getElementById('whatifPanel').classList.toggle('open');
+  updateWhatIf();
+}
+
+function updateWhatIf() {
+  const futureCpi = parseFloat(document.getElementById('wiCpi').value);
+  const futureSpi = parseFloat(document.getElementById('wiSpi').value);
+  const burnAdj = parseFloat(document.getElementById('wiBurn').value)/100;
+
+  document.getElementById('wiCpiVal').textContent = futureCpi.toFixed(2);
+  document.getElementById('wiSpiVal').textContent = futureSpi.toFixed(2);
+  document.getElementById('wiBurnVal').textContent = Math.round(burnAdj*100)+'%';
+
+  const last = data[data.length-1];
+  const remaining = BAC - last.cumBcwp;
+  const plannedRemaining = BAC - last.cumBcws;
+
+  // Forecast months to complete remaining work
+  const avgMonthlyEarn = last.cumBcwp / data.length;
+  const futureMonthlyEarn = avgMonthlyEarn * futureSpi * burnAdj;
+  const monthsToComplete = futureMonthlyEarn > 0 ? Math.ceil(remaining / futureMonthlyEarn) : 99;
+
+  // Forecast EAC
+  const futureActualCost = futureCpi > 0 ? remaining / futureCpi : remaining;
+  const forecastEAC = last.cumAcwp + futureActualCost * burnAdj;
+
+  // Forecast final SPI
+  const totalPlanned = BAC;
+  const totalEarned = BAC; // at completion
+  const totalMonths = data.length + monthsToComplete;
+  const forecastVAC = BAC - forecastEAC;
+
+  // Forecast completion date
+  const baseDate = new Date(2026, 2, 31); // Mar 31, 2026
+  const completionDate = new Date(baseDate);
+  completionDate.setMonth(completionDate.getMonth() + monthsToComplete);
+  const plannedEnd = new Date(2026, 5, 30); // Jun 30, 2026
+  const delayMonths = monthsToComplete - 3;
+
+  const res = document.getElementById('whatifResults');
+  res.innerHTML = `
+    <div class="whatif-result">
+      <div class="label">Forecast EAC</div>
+      <div class="value" style="color:${forecastEAC>BAC?'var(--red)':'var(--green)'}">$${(forecastEAC/1e6).toFixed(1)}M</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:2px">${forecastEAC>BAC?'+':''}$${((forecastEAC-BAC)/1e6).toFixed(1)}M vs BAC</div>
+    </div>
+    <div class="whatif-result">
+      <div class="label">Months to Complete</div>
+      <div class="value" style="color:${monthsToComplete>3?'var(--amber)':'var(--green)'}">${monthsToComplete}</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:2px">${monthsToComplete<=3?'On time':'+'+(monthsToComplete-3)+' months beyond plan'}</div>
+    </div>
+    <div class="whatif-result">
+      <div class="label">Forecast Completion</div>
+      <div class="value" style="color:${delayMonths>0?'var(--amber)':'var(--green)'}; font-size:18px;">${completionDate.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:2px">${delayMonths>0?delayMonths+' month(s) late':'On or ahead of schedule'}</div>
+    </div>
+    <div class="whatif-result">
+      <div class="label">Cost Variance at Completion</div>
+      <div class="value" style="color:${forecastVAC<0?'var(--red)':'var(--green)'}">${forecastVAC<0?'-':''}$${(Math.abs(forecastVAC)/1e6).toFixed(1)}M</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:2px">${forecastVAC<0?'Over budget':'Under budget'}</div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════
+//  UI CONTROLS
+// ══════════════════════════════════════════════════════════
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+  if (tab==='dashboard') buildCharts();
+}
+
+function toggleInsight(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function toggleAllInsights() {
+  allInsightsOpen = !allInsightsOpen;
+  document.querySelectorAll('.insight-box').forEach(b => {
+    if (!b.closest('.tab-content') || b.closest('.tab-content').id === 'tab-dashboard') {
+      b.classList.toggle('open', allInsightsOpen);
+    }
+  });
+}
+
+function setPhaseFilter(phase, el) {
+  activePhase = phase;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  buildCharts();
+}
+
+function renderAll() {
+  recalc();
+  renderKPIs();
+  renderTable();
+  buildCharts();
+  updateWhatIf();
+}
+
+// ── Init ────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>

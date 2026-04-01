@@ -1,0 +1,43 @@
+Activity_ID,WBS_Code,Activity_Name,Phase,Discipline,Planned_Start,Planned_Finish,Actual_Start,Actual_Finish,Planned_Duration_Days,Actual_Duration_Days,Predecessor,Float_Days,Critical_Path,Percent_Complete,Status,Delay_Days,Delay_Reason
+A1000,1.0,Project Mobilization,Preconstruction,General,2025-01-06,2025-01-17,2025-01-06,2025-01-17,10,10,,15,No,100,Complete,0,
+A1010,1.1,Site Survey and Geotechnical,Preconstruction,Civil,2025-01-08,2025-01-24,2025-01-08,2025-01-22,13,11,A1000,15,No,100,Complete,-2,
+A1020,1.2,Permits and Approvals,Preconstruction,General,2025-01-13,2025-02-14,2025-01-13,2025-02-21,25,30,A1000,0,Yes,100,Complete,5,City review backlog
+A1030,1.3,Temporary Facilities Setup,Preconstruction,General,2025-01-20,2025-02-07,2025-01-20,2025-02-05,15,13,A1000,10,No,100,Complete,-2,
+A2000,2.0,Excavation and Shoring,Substructure,Civil,2025-02-24,2025-04-04,2025-02-24,2025-04-08,30,32,A1020,0,Yes,100,Complete,2,Rock encountered at P2 level
+A2010,2.1,Dewatering System Install,Substructure,Civil,2025-03-03,2025-03-14,2025-03-03,2025-03-17,10,11,A2000SS+5,5,No,100,Complete,1,Higher water table than expected
+A2020,2.2,Foundation Piles - P2 Level,Substructure,Structural,2025-04-07,2025-05-02,2025-04-09,2025-05-06,20,22,A2000,0,Yes,100,Complete,2,Rock conditions slowed drilling
+A2030,2.3,Foundation Piles - P1 Level,Substructure,Structural,2025-05-05,2025-05-23,2025-05-07,2025-05-27,15,16,A2020,0,Yes,100,Complete,2,Cascading from P2 delay
+A2040,2.4,P2 Slab on Grade,Substructure,Structural,2025-05-12,2025-05-30,2025-05-14,2025-06-03,15,16,A2020,3,No,100,Complete,2,
+A2050,2.5,P1 Slab on Grade,Substructure,Structural,2025-05-26,2025-06-13,2025-05-28,2025-06-17,15,16,A2030,0,Yes,100,Complete,2,
+A2060,2.6,Waterproofing - Below Grade,Substructure,Envelope,2025-06-02,2025-06-20,2025-06-04,2025-06-24,15,16,A2040,3,No,100,Complete,2,
+A3000,3.0,Ground Floor Slab and Podium,Superstructure,Structural,2025-06-16,2025-07-11,2025-06-20,2025-07-16,20,21,A2050,0,Yes,100,Complete,3,Cascading from substructure delays
+A3010,3.1,Core and Shear Walls - Floors 1-5,Superstructure,Structural,2025-07-14,2025-08-22,2025-07-17,2025-08-27,30,32,A3000,0,Yes,100,Complete,3,Formwork crew shortage - 1 week
+A3020,3.2,Facade System Procurement,Superstructure,Envelope,2025-06-02,2025-08-01,2025-06-02,2025-09-05,45,70,A2050SS,0,Yes,100,Complete,25,Original supplier failed QA - redesign to unitized curtain wall system
+A3030,3.3,Core and Shear Walls - Floors 6-12,Superstructure,Structural,2025-08-25,2025-10-17,2025-08-28,2025-10-22,40,42,A3010,0,Yes,100,Complete,3,Cascading + concrete pump breakdown (2 days)
+A3040,3.4,Core and Shear Walls - Floors 13-21,Superstructure,Structural,2025-10-20,2025-12-19,2025-10-23,2025-12-24,45,47,A3030,0,Yes,100,Complete,3,Cascading delay
+A3050,3.5,Post-Tension Slabs - Floors 1-5,Superstructure,Structural,2025-08-11,2025-09-19,2025-08-14,2025-09-24,30,32,A3010SS+20,5,No,100,Complete,3,
+A3060,3.6,Post-Tension Slabs - Floors 6-12,Superstructure,Structural,2025-09-22,2025-11-14,2025-09-25,2025-11-19,40,42,A3050,5,No,100,Complete,3,
+A3070,3.7,Post-Tension Slabs - Floors 13-21,Superstructure,Structural,2025-11-17,2026-01-23,2025-11-20,2026-01-28,50,52,A3060,5,No,100,Complete,3,
+A4000,4.0,Curtain Wall Install - Floors 1-8,Envelope,Envelope,2025-10-20,2025-12-12,2025-11-10,2026-01-09,40,46,A3020;A3030,0,Yes,100,Complete,21,Late facade delivery cascading from redesign
+A4010,4.1,Curtain Wall Install - Floors 9-16,Envelope,Envelope,2025-12-15,2026-02-06,2026-01-12,2026-03-06,40,40,A4000,0,Yes,100,Complete,21,Cascading from facade delay
+A4020,4.2,Curtain Wall Install - Floors 17-25,Envelope,Envelope,2026-02-09,2026-03-28,2026-03-09,,,35,,A4010,0,Yes,65,In Progress,21,Cascading from facade delay
+A4030,4.3,Roofing and Waterproofing,Envelope,Envelope,2026-01-26,2026-02-21,2026-01-29,2026-02-26,20,22,A3040,8,No,100,Complete,3,
+A5000,5.0,MEP Rough-In - P2 and P1,Interior,Mechanical,2025-07-14,2025-08-22,2025-07-17,2025-08-27,30,32,A2050;A3000SS,8,No,100,Complete,3,
+A5010,5.1,MEP Rough-In - Floors 1-5,Interior,Mechanical,2025-09-08,2025-10-17,2025-09-11,2025-10-22,30,32,A3010;A5000,5,No,100,Complete,3,
+A5020,5.2,MEP Rough-In - Floors 6-12,Interior,Mechanical,2025-10-20,2025-12-05,2025-10-23,2025-12-10,35,37,A3030;A5010,5,No,100,Complete,3,
+A5030,5.3,MEP Rough-In - Floors 13-21,Interior,Mechanical,2025-12-08,2026-02-06,2025-12-11,2026-02-11,45,47,A3040;A5020,5,No,100,Complete,3,
+A5040,5.4,Elevator Installation,Interior,Mechanical,2025-11-03,2026-03-06,2025-11-06,,,90,,A3030,0,Yes,78,In Progress,3,
+A6000,6.0,Interior Finishes - Floors 1-5,Interior,Architectural,2025-11-17,2026-01-09,2025-11-20,2026-01-14,40,42,A4000SS+20;A5010,5,No,100,Complete,3,
+A6010,6.1,Interior Finishes - Floors 6-12,Interior,Architectural,2026-01-12,2026-03-06,2026-01-15,2026-03-11,40,42,A4010SS+20;A5020,5,No,100,Complete,3,
+A6020,6.2,Interior Finishes - Floors 13-21,Interior,Architectural,2026-03-09,2026-05-15,2026-03-12,,,50,,A4020SS+20;A5030,5,No,35,In Progress,,
+A6030,6.3,Common Area Finishes - Lobby and Amenities,Interior,Architectural,2026-02-16,2026-04-11,2026-02-19,,,40,,A6000,0,Yes,45,In Progress,,
+A7000,7.0,Fire Protection Systems,Interior,Fire Protection,2025-12-01,2026-03-27,2025-12-04,,,85,,A5010,3,No,82,In Progress,3,
+A7010,7.1,Building Automation System,Interior,Electrical,2026-01-05,2026-04-17,2026-01-08,,,75,,A5020,3,No,70,In Progress,,
+A7020,7.2,Electrical Switchgear and Distribution,Interior,Electrical,2025-10-06,2025-12-19,2025-10-09,2025-12-24,55,57,A3030SS+10,5,No,100,Complete,3,
+A8000,8.0,Landscaping and Hardscaping,Exterior,Civil,2026-04-13,2026-05-22,,,30,,A6030,5,No,0,Not Started,,
+A8010,8.1,Parking and Loading Dock Finishes,Exterior,Civil,2026-03-16,2026-04-18,2026-03-19,,,25,,A5000,10,No,15,In Progress,,
+A9000,9.0,Commissioning - MEP Systems,Closeout,General,2026-04-20,2026-05-23,,,25,,A7000;A7010,0,Yes,0,Not Started,,
+A9010,9.1,Commissioning - Fire and Life Safety,Closeout,Fire Protection,2026-04-27,2026-05-23,,,20,,A7000,0,Yes,0,Not Started,,
+A9020,9.2,Deficiency Walkthrough and Remediation,Closeout,General,2026-05-26,2026-06-13,,,15,,A9000;A9010,0,Yes,0,Not Started,,
+A9030,9.3,Final Inspections and Occupancy Permit,Closeout,General,2026-06-09,2026-06-20,,,10,,A9020SS+10,0,Yes,0,Not Started,,
+A9040,9.4,Owner Handover and Project Closeout,Closeout,General,2026-06-16,2026-06-27,,,10,,A9030SS+5,0,Yes,0,Not Started,,
